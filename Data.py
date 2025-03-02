@@ -65,9 +65,6 @@ def comprobar_e_instalar_paquetes():
     for paquete in paquetes_sistema:
         instalar_paquete_sistema(paquete)
 
-# Llamar a la función para instalar los paquetes necesarios
-comprobar_e_instalar_paquetes()
-
 
 def obtener_clima(ciudad):
     datos_clima = {}
