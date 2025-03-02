@@ -7,6 +7,45 @@ import re
 import random
 import subprocess
 import matplotlib.pyplot as plt
+import requests
+
+def obtener_clima(ciudad):
+    datos_clima = {}
+
+    API_key = "991d0598ada0fc2774d261626d556e03"
+    URL = f"https://api.openweathermap.org/data/2.5/weather?q={ciudad}&appid={API_key}&units=metric&lang=es"
+
+    response = requests.get(URL)
+
+    if response.status_code == 200:
+        data = response.json()
+        
+        datos_clima["ciudad"] = ciudad
+        datos_clima["descripcion"] = data["weather"][0]["description"]
+        datos_clima["temperatura"] = data["main"]["temp"]
+        datos_clima["humedad"] = data["main"]["humidity"]
+        datos_clima["viento"] = data["wind"]["speed"]
+    
+    else:
+        datos_clima["error"] = f"Error {response.status_code}: No se pudo obtener el clima."
+
+    return datos_clima
+        
+    #     print(f"Claro, aquí tienes la información del clima en {ciudad}:")
+    #     print("Clima actual:", weather_description)
+    #     print("Temperatura actual:", current_temperature, "°C")
+    # else:
+    #     print("Error en la solicitud:", response.status_code)
+    
+def imprimir_clima(clima):
+    if "error" in clima:
+        return clima["error"]
+    else:
+        print(f"\n📍 Clima en {clima['ciudad'].upper()}:")
+        print(f"🌤️ Estado: {clima['descripcion'].capitalize()}")
+        print(f"🌡️ Temperatura: {clima['temperatura']}°C")
+        print(f"💧 Humedad: {clima['humedad']}%")
+        print(f"🌬️ Viento: {clima['viento']} m/s")
 
 def bus_en_txt(nombre, word):
     temperaturas = []
@@ -354,7 +393,7 @@ def respuestas_chat(entrada_usuario):
         "saludos": r"\b(hola|hey|qué tal|buenos días|buenas tardes)\b",
         "despedidas": r"\b(adiós|bye|hasta luego|nos vemos)\b",
         "hora": r"\b(qué hora es|hora actual|dime la hora)\b",
-        "clima": r"\b(cómo está el clima|qué tiempo hace|clima de hoy)\b",
+        "clima": r"\b(cómo está el clima|qué tiempo hace|clima de hoy|clima)\b",
         "espacio_disco": r"\b(espacio en disco|cuánto espacio tengo libre|cuánto espacio tengo ocupado|espacio ocupado)\b",
         "espacio_libre": r"\b(espacio libre|cuánto espacio tengo disponible)\b",
         "espacio_total": r"\b(espacio total|cuánto espacio tengo en total)\b",
@@ -372,6 +411,9 @@ def respuestas_chat(entrada_usuario):
         return "¡Hasta luego! Que tengas un buen día."
     elif re.search(entradas["hora"], entrada_usuario):
         return f"La hora actual es {time.strftime('%H:%M')}."
+    elif re.search(entradas["clima"], entrada_usuario):
+        ciudad = input("¿De qué ciudad quieres saber el clima?: ")
+        return obtener_clima(ciudad)
     elif re.search(entradas["espacio_disco"], entrada_usuario):
         return f"Tienes {obtener_espacio_disco()}% de espacio en disco ocupado."
     elif re.search(entradas["espacio_libre"], entrada_usuario):
