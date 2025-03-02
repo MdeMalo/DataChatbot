@@ -9,6 +9,8 @@ import subprocess
 import matplotlib.pyplot as plt
 import requests
 import sys
+import tkinter as tk
+from tkinter import scrolledtext
 
 def obtener_clima(ciudad):
     datos_clima = {}
@@ -37,6 +39,27 @@ def obtener_clima(ciudad):
     #     print("Temperatura actual:", current_temperature, "°C")
     # else:
     #     print("Error en la solicitud:", response.status_code)
+    
+def mostrar_historial():
+    archivo = 'historial_Chat.txt'
+    ventana_historial = tk.Tk()  # Crea una ventana secundaria
+    ventana_historial.title("Historial del Chat")
+    ventana_historial.geometry("800x600")  # Establece un tamaño mayor
+    ventana_historial.resizable(True, True)  # Permite redimensionar la ventana
+
+    texto_historial = scrolledtext.ScrolledText(ventana_historial, width=100, height=20, wrap=tk.WORD)
+    texto_historial.pack(expand=True, fill='both')
+
+    try:
+        with open(archivo, 'r', encoding="utf-8") as file:
+            contenido = file.read()
+        if not contenido.strip():
+            contenido = "El archivo está vacío."
+        texto_historial.insert(tk.INSERT, contenido)
+        texto_historial.config(state=tk.DISABLED)
+    except FileNotFoundError:
+        texto_historial.insert(tk.INSERT, "El archivo 'historial_Chat.txt' no se encontró.")
+        texto_historial.config(state=tk.DISABLED)
 
 def bus_en_txt(nombre, word):
     temperaturas = []
@@ -422,6 +445,10 @@ def comprobar_Archivos():
     if not os.path.exists("datos_OS.txt"):
         with open("datos_OS.txt", 'w', encoding='utf-8') as file:
             pass
+        
+    if not os.path.exists("historial_Chat.txt"):
+        with open("historial_Chat.txt", 'w', encoding='utf-8') as file:
+            pass
 
 def respuestas_chat(entrada_usuario):
     entrada_usuario = entrada_usuario.lower()
@@ -440,7 +467,9 @@ def respuestas_chat(entrada_usuario):
         "base_board": r"\b(base board|placa base|informacion placa base|información placa base|placa madre)\b",
         "cpu_info": r"\b(cpu info|informacion cpu|información cpu|cpu)\b",
         "memoria_info": r"\b(informacion de memoria|ram|memoria ram)\b",
-        "sistema_operativo": r"\b(sistema operativo|qué sistema operativo tengo)\b"
+        "sistema_operativo": r"\b(sistema operativo|qué sistema operativo tengo)\b",
+        "historial": r"\b(historial|mostrar historial)\b",
+        "ayuda": r"\b(que puedes hacer|ayuda)\b"
     }
 
     if re.search(entradas["saludos"], entrada_usuario):
@@ -490,19 +519,58 @@ def respuestas_chat(entrada_usuario):
     elif re.search(entradas["sistema_operativo"], entrada_usuario):
         info_OS()
         return f"Aqui tienes alguna informacion importante de tu sistema operativo {bus_en_txt_info_OS('datos_OS.txt')}"
+    elif re.search(entradas["historial"], entrada_usuario):
+        mostrar_historial()
+        return "Historial abierto en ventana emergente."
+    elif re.search(entradas["ayuda"], entrada_usuario):
+        return "Puedo ayudarte con las siguientes tareas:\n" \
+               "- Saludos y despedidas\n" \
+               "- Decirte la hora actual\n" \
+               "- Obtener el clima de una ciudad\n" \
+               "- Mostrar el espacio en disco\n" \
+               "- Mostrar el espacio libre en disco\n" \
+               "- Mostrar el espacio total en disco\n" \
+               "- Calcular el promedio de temperaturas\n" \
+               "- Graficar temperaturas\n" \
+               "- Obtener información de la BIOS\n" \
+               "- Obtener información de la placa base\n" \
+               "- Obtener información de la CPU\n" \
+               "- Obtener información de la memoria RAM\n" \
+               "- Obtener información del sistema operativo\n" \
+               "- Mostrar el historial del chat"
     else:
         return random.choice(["No entiendo tu mensaje, ¿puedes reformularlo?", "Interesante, pero no sé cómo responder a eso."])
 
 def main():    
     comprobar_Archivos()
-    print("¡Hola! Soy un chatbot. Puedo ayudarte con algunas tareas.")
+    historial = 'historial_Chat.txt'
+    bienvenida = "¡Hola! Soy un chatbot. Puedo ayudarte con algunas tareas."
+    
+    with open(historial, "a", encoding="utf-8") as file:
+        file.write("Historial del chat:\n")
+        file.write(f"Chatbot: {bienvenida}\n")
+    
+    print(bienvenida)
     
     while True:
         user_text = input("Tú: ")
         if user_text.lower() in ["adiós", "bye", "hasta luego", "nos vemos"]:
             print("Chatbot: ¡Hasta luego!")
+            with open(historial, "a", encoding="utf-8") as file:
+                file.write("Chatbot: ¡Hasta luego!\n")  # Guarda el mensaje de despedida
             break
-        print("Chatbot:", respuestas_chat(user_text))
+        
+        respuesta = respuestas_chat(user_text)  # Se guarda la respuesta en una variable
+        print("Chatbot:", respuesta)
+
+        with open(historial, "a", encoding="utf-8") as file:
+            file.write(f"Tú: {user_text}\n")
+            file.write(f"Bot: {respuesta}\n")
+            
+    with open(historial, "a", encoding="utf-8") as file:
+        file.write(f"Fin del historial.\n")
+        file.write("-----------------------------------------------------\n")
+
 
 if __name__ == "__main__":
     main()
