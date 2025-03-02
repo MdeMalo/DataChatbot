@@ -55,7 +55,7 @@ lsb-release: Proporciona el comando lsb_release para obtener información del si
 Instalación:
 
     1.-Clona el repositorio:
-        git clone https://github.com/tuusuario/DataChatbot.git
+        git clone https://github.com/MdeMalo/DataChatbot.git
         cd DataChatbot
     2.- (Opcional) Revisa o instala las dependencias:
         El script intentará instalar automáticamente los paquetes necesarios mediante sudo apt install python3-nombre_del_paquete y para los comandos de consola sudo apt update y sudo apt install lm-sensors dmidecode lshw lsb-release, pero también puedes instalarlos manualmente si lo prefieres.
