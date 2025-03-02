@@ -31,6 +31,20 @@ def instalar_paquete(paquete):
             subprocess.check_call(["sudo", "apt", "install", f"python3-{paquete}", "-y"])
         except subprocess.CalledProcessError as e:
             print(f"Error al instalar el paquete {paquete}: {e}")
+            
+def instalar_paquete_sistema(paquete):
+    """
+    Comprueba e instala un paquete de sistema usando dpkg.
+    """
+    try:
+        # dpkg -s devuelve 0 si el paquete está instalado
+        resultado = subprocess.run(["dpkg", "-s", paquete], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        if resultado.returncode != 0:
+            print(f"El paquete de sistema '{paquete}' no está instalado. Instalando...")
+            subprocess.check_call(["sudo", "apt", "update"])
+            subprocess.check_call(["sudo", "apt", "install", paquete, "-y"])
+    except subprocess.CalledProcessError as e:
+        print(f"Error al instalar el paquete de sistema '{paquete}': {e}")
 
 def comprobar_e_instalar_paquetes():
     paquetes = [
@@ -39,9 +53,17 @@ def comprobar_e_instalar_paquetes():
         "tkinter"
     ]
 
-
     for paquete in paquetes:
         instalar_paquete(paquete)
+        
+    paquetes_sistema = [
+        "lm-sensors",
+        "dmidecode",
+        "lshw",
+        "lsb-release"
+    ]
+    for paquete in paquetes_sistema:
+        instalar_paquete_sistema(paquete)
 
 # Llamar a la función para instalar los paquetes necesarios
 comprobar_e_instalar_paquetes()
