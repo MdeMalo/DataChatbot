@@ -141,7 +141,7 @@ def bus_en_txt(nombre, word, word1):
     try:
         with open(nombre, 'r', encoding='utf-8') as file:
             for numL, line in enumerate(file, 1):
-                if word|word1 in line:
+                if word or word1 in line:
                     temp = float(line.split()[2].replace('°C', '').replace('+', ''))
                     temperaturas.append(temp)
         return sum(temperaturas) / len(temperaturas) if temperaturas else "No hay datos suficientes."
@@ -166,12 +166,12 @@ def bus_en_txt_info_OS(archivo):
     except Exception as e:
         return f"Error: {e}"
 
-def bus_en_txt_temperaturas_completas(nombre, word):
+def bus_en_txt_temperaturas_completas(nombre, word, word1):
     temperaturas = []
     try:
         with open(nombre, 'r', encoding='utf-8') as file:
             for numL, line in enumerate(file, 1):
-                if word in line:
+                if word or word1 in line:
                     temp = float(line.split()[2].replace('°C', '').replace('+', ''))
                     temperaturas.append(temp)
         return temperaturas
@@ -579,7 +579,7 @@ def respuestas_chat(entrada_usuario):
         return f"El promedio de todas las temperaturas es {bus_en_txt('temp.txt', 'Core', 'temp1')}°C."
     elif re.search(entradas["graficar_temperaturas"], entrada_usuario):
         os.system("sensors >temp.txt")
-        temps = bus_en_txt_temperaturas_completas('temp.txt', 'Core')
+        temps = bus_en_txt_temperaturas_completas('temp.txt', 'Core', 'temp1')
         guardar_en_csv(temps, 'datos_temperaturas.csv')
         registros = leer_datos_csv("datos_temperaturas.csv")
         if registros:
