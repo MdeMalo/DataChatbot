@@ -8,6 +8,7 @@ import random
 import subprocess
 import matplotlib.pyplot as plt
 import requests
+import sys
 
 def obtener_clima(ciudad):
     datos_clima = {}
@@ -36,16 +37,6 @@ def obtener_clima(ciudad):
     #     print("Temperatura actual:", current_temperature, "°C")
     # else:
     #     print("Error en la solicitud:", response.status_code)
-    
-def imprimir_clima(clima):
-    if "error" in clima:
-        return clima["error"]
-    else:
-        print(f"\n📍 Clima en {clima['ciudad'].upper()}:")
-        print(f"🌤️ Estado: {clima['descripcion'].capitalize()}")
-        print(f"🌡️ Temperatura: {clima['temperatura']}°C")
-        print(f"💧 Humedad: {clima['humedad']}%")
-        print(f"🌬️ Viento: {clima['viento']} m/s")
 
 def bus_en_txt(nombre, word):
     temperaturas = []
@@ -58,6 +49,24 @@ def bus_en_txt(nombre, word):
         return sum(temperaturas) / len(temperaturas) if temperaturas else "No hay datos suficientes."
     except FileNotFoundError:
         return "Archivo no encontrado."
+    
+def bus_en_txt_info_OS(archivo):
+    datos_OS = {}
+    try:
+        subprocess.run("lsb_release -a > datos_OS.txt", shell=True)
+        with open('datos_OS.txt', 'r', encoding='utf-8') as file:
+            for line in file:
+                if "Distributor ID" in line:
+                    datos_OS["Distribuidor"] = line.split(":")[1].strip()
+                elif "Description" in line:
+                    datos_OS["Descripción"] = line.split(":")[1].strip()
+                elif "Release" in line:
+                    datos_OS["Versión"] = line.split(":")[1].strip()
+                elif "Codename" in line:
+                    datos_OS["Codename"] = line.split(":")[1].strip()
+        return datos_OS
+    except Exception as e:
+        return f"Error: {e}"
 
 def bus_en_txt_temperaturas_completas(nombre, word):
     temperaturas = []
@@ -384,7 +393,35 @@ def info_lshw(contraseña_usuario, tipo):
             return "Error al obtener la información."
     except Exception as e:
         return f"Error: {e}"
+
+def info_OS():
+    try:
+        subprocess.run("lsb_release -a > datos_OS.txt", shell=True)
+        with open('datos_OS.txt', 'r', encoding='utf-8') as file:
+            return file.read()
+    except Exception as e:
+        return f"Error: {e}"
     
+def comprobar_Archivos():
+    if not os.path.exists("temp.txt"):
+        with open("temp.txt", 'w', encoding='utf-8') as file:
+            pass
+
+    if not os.path.exists("datos_temperaturas.csv"):
+        with open("datos_temperaturas.csv", 'w', encoding='utf-8') as file:
+            pass
+        
+    if not os.path.exists("datos_bios.txt"):
+        with open("datos_bios.txt", 'w', encoding='utf-8') as file:
+            pass
+        
+    if not os.path.exists("datos_lshw.txt"):
+        with open("datos_lshw.txt", 'w', encoding='utf-8') as file:
+            pass
+        
+    if not os.path.exists("datos_OS.txt"):
+        with open("datos_OS.txt", 'w', encoding='utf-8') as file:
+            pass
 
 def respuestas_chat(entrada_usuario):
     entrada_usuario = entrada_usuario.lower()
@@ -402,7 +439,8 @@ def respuestas_chat(entrada_usuario):
         "info_bios": r"\b(info bios|dame informacion de la bios|bios)\b",
         "base_board": r"\b(base board|placa base|informacion placa base|información placa base|placa madre)\b",
         "cpu_info": r"\b(cpu info|informacion cpu|información cpu|cpu)\b",
-        "memoria_info": r"\b(informacion de memoria|ram|memoria ram)\b"
+        "memoria_info": r"\b(informacion de memoria|ram|memoria ram)\b",
+        "sistema_operativo": r"\b(sistema operativo|qué sistema operativo tengo)\b"
     }
 
     if re.search(entradas["saludos"], entrada_usuario):
@@ -449,25 +487,15 @@ def respuestas_chat(entrada_usuario):
         contrasela_usuario = input("Introduce tu contraseña de usuario: ")
         info_lshw(contrasela_usuario, "memory")
         return f"Aqui tienes alguna informacion importante de tu memoria {bus_en_txt_lshw_ram('datos_lshw.txt')}"
+    elif re.search(entradas["sistema_operativo"], entrada_usuario):
+        info_OS()
+        return f"Aqui tienes alguna informacion importante de tu sistema operativo {bus_en_txt_info_OS('datos_OS.txt')}"
     else:
         return random.choice(["No entiendo tu mensaje, ¿puedes reformularlo?", "Interesante, pero no sé cómo responder a eso."])
 
 def main():    
-    if not os.path.exists("temp.txt"):
-        with open("temp.txt", 'w', encoding='utf-8') as file:
-            pass  # Se crea un archivo vacío
-
-    if not os.path.exists("datos_temperaturas.csv"):
-        with open("datos_temperaturas.csv", 'w', encoding='utf-8') as file:
-            pass  # Se crea un archivo vacío
-        
-    if not os.path.exists("datos_bios.txt"):
-        with open("datos_bios.txt", 'w', encoding='utf-8') as file:
-            pass
-        
-    if not os.path.exists("datos_lshw.txt"):
-        with open("datos_lshw.txt", 'w', encoding='utf-8') as file:
-            pass
+    comprobar_Archivos()
+    print("¡Hola! Soy un chatbot. Puedo ayudarte con algunas tareas.")
     
     while True:
         user_text = input("Tú: ")
