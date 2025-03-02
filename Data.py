@@ -136,12 +136,12 @@ def mostrar_bibliotecas():
         texto_historial.insert(tk.INSERT, "El archivo 'requirements.txt' no se encontró.")
         texto_historial.config(state=tk.DISABLED)
 
-def bus_en_txt(nombre, word):
+def bus_en_txt(nombre, word, word1):
     temperaturas = []
     try:
         with open(nombre, 'r', encoding='utf-8') as file:
             for numL, line in enumerate(file, 1):
-                if word in line:
+                if word|word1 in line:
                     temp = float(line.split()[2].replace('°C', '').replace('+', ''))
                     temperaturas.append(temp)
         return sum(temperaturas) / len(temperaturas) if temperaturas else "No hay datos suficientes."
@@ -362,6 +362,13 @@ def bus_en_txt_lshw_ram(nombre):
                         datos_ram["modulos"].append(modulo_actual)
                     modulo_actual = {}  # Reiniciar el módulo actual
                     continue
+                
+                if re.match(r"^\s*\*\-bank\d+", line, re.IGNORECASE):
+                    leyendo_modulo = True
+                    if modulo_actual:  # Guardar el módulo anterior si ya hay datos
+                        datos_ram["modulos"].append(modulo_actual)
+                    modulo_actual = {}  # Reiniciar el módulo actual
+                    continue
 
                 # Capturar datos del módulo RAM
                 if leyendo_modulo:
@@ -569,7 +576,7 @@ def respuestas_chat(entrada_usuario):
         return f"Tienes un total de {obtener_espacio_total()} bytes de espacio en disco."
     elif re.search(entradas["promedio_temperaturas"], entrada_usuario):
         os.system("sensors >temp.txt")
-        return f"El promedio de todas las temperaturas es {bus_en_txt('temp.txt', 'Core')}°C."
+        return f"El promedio de todas las temperaturas es {bus_en_txt('temp.txt', 'Core', 'temp1')}°C."
     elif re.search(entradas["graficar_temperaturas"], entrada_usuario):
         os.system("sensors >temp.txt")
         temps = bus_en_txt_temperaturas_completas('temp.txt', 'Core')
