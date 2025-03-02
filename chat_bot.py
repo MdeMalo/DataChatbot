@@ -391,9 +391,9 @@ def obtener_espacio_total():
     total, _, _ = shutil.disk_usage("/")
     return total
 
-def info_bios(contraseña_usuario): 
+def info_bios(): 
     try:
-        comando = f'echo {contraseña_usuario} | sudo dmidecode > datos_bios.txt'
+        comando = f'sudo dmidecode > datos_bios.txt'
         resultado = subprocess.run(comando, shell=True, capture_output=True, text=True)
         
         if resultado.returncode == 0:
@@ -404,9 +404,9 @@ def info_bios(contraseña_usuario):
     except Exception as e:
         return f"Error: {e}"
     
-def info_lshw(contraseña_usuario, tipo):
+def info_lshw(tipo):
     try:
-        comando = f'echo {contraseña_usuario} | sudo lshw -C {tipo}> datos_lshw.txt'
+        comando = f'sudo lshw -C {tipo}> datos_lshw.txt'
         resultado = subprocess.run(comando, shell=True, capture_output=True, text=True)
         
         if resultado.returncode == 0:
@@ -501,20 +501,16 @@ def respuestas_chat(entrada_usuario):
         else:
             return "No hay datos suficientes para graficar."
     elif re.search(entradas["info_bios"], entrada_usuario):
-        contrasela_usuario = input("Introduce tu contraseña de usuario: ")
-        info_bios(contrasela_usuario)
+        info_bios()
         return f"Aqui tienes alguna informacion importante de tu bios {bus_en_txt_bios('datos_bios.txt')}"
     elif re.search(entradas["base_board"], entrada_usuario):
-        contrasela_usuario = input("Introduce tu contraseña de usuario: ")
-        info_bios(contrasela_usuario)
+        info_bios()
         return f"Aqui tienes alguna informacion importante de tu placa base {bus_en_txt_base_board('datos_bios.txt')}"
     elif re.search(entradas["cpu_info"], entrada_usuario):
-        contrasela_usuario = input("Introduce tu contraseña de usuario: ")
-        info_lshw(contrasela_usuario, "cpu")
+        info_lshw("cpu")
         return f"Aqui tienes alguna informacion importante de tu cpu {bus_en_txt_lshw_cpu('datos_lshw.txt')}"
     elif re.search(entradas["memoria_info"], entrada_usuario):
-        contrasela_usuario = input("Introduce tu contraseña de usuario: ")
-        info_lshw(contrasela_usuario, "memory")
+        info_lshw("memory")
         return f"Aqui tienes alguna informacion importante de tu memoria {bus_en_txt_lshw_ram('datos_lshw.txt')}"
     elif re.search(entradas["sistema_operativo"], entrada_usuario):
         info_OS()
