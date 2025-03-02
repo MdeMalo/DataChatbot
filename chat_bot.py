@@ -128,6 +128,115 @@ def bus_en_txt_base_board(nombre):
     except FileNotFoundError:
         print("Archivo no encontrado.")
         return []
+
+import re
+
+def bus_en_txt_lshw_cpu(nombre):
+    datos_cpu = {}
+    palabras_clave = {
+        "producto": r"(?i)^\s*(producto|product)\s*:\s*(.+)",
+        "fabricante": r"(?i)^\s*(fabricante|vendor)\s*:\s*(.+)",
+        "versión": r"(?i)^\s*(versión|version)\s*:\s*(.+)",
+        "serial": r"(?i)^\s*(serial|número de serie)\s*:\s*(.+)",
+        "ranura": r"(?i)^\s*(ranura|slot)\s*:\s*(.+)"
+    }
+
+    leyendo_seccion = False  # Para detectar cuándo empezar a leer
+
+    try:
+        with open(nombre, 'r', encoding='utf-8') as file:
+            for line in file:
+                line = line.strip()
+
+                # Detectar el inicio de la sección "CPU"
+                if re.match(r"^\s*\*\-cpu", line, re.IGNORECASE):
+                    leyendo_seccion = True
+                    continue  # Evita procesar la línea de detección
+
+                # Si aún no estamos en la sección correcta, continuar con la siguiente línea
+                if not leyendo_seccion:
+                    continue
+
+                # Buscar y extraer los datos clave
+                for clave, patron in palabras_clave.items():
+                    match = re.match(patron, line)
+                    if match and clave not in datos_cpu:
+                        datos_cpu[clave] = match.group(2).strip()
+                        break  # Evita procesar más claves en la misma línea
+
+                # Si ya encontramos toda la información, salimos del bucle
+                if len(datos_cpu) == len(palabras_clave):
+                    break
+
+        return datos_cpu if datos_cpu else {"Error": "No se encontraron datos relevantes."}
+
+    except FileNotFoundError:
+        return {"Error": "Archivo no encontrado."}
+    except Exception as e:
+        return {"Error": f"Error inesperado: {e}"}
+
+def bus_en_txt_lshw_ram(nombre):
+    datos_ram = {"tamaño_total": "", "modulos": []}
+    patron_tamano_total = r"(?i)^\s*tamaño\s*:\s*(\d+\S+)"
+    patrones_modulo = {
+        "descripción": r"(?i)^\s*descripción\s*:\s*(.+)",  # Agregado correctamente
+        "producto": r"(?i)^\s*producto\s*:\s*(.+)",
+        "fabricante": r"(?i)^\s*(fabricante|vendor)\s*:\s*(.+)",
+        "serial": r"(?i)^\s*(serial|número de serie)\s*:\s*(.+)",
+        "ranura": r"(?i)^\s*(ranura|slot)\s*:\s*(.+)",
+        "tamaño": r"(?i)^\s*tamaño\s*:\s*(.+)",
+        "reloj": r"(?i)^\s*reloj\s*:\s*(.+)"
+    }
+
+    leyendo_memoria = False
+    leyendo_modulo = False
+    modulo_actual = {}
+
+    try:
+        with open(nombre, 'r', encoding='utf-8') as file:
+            for line in file:
+                line = line.strip()
+
+                # Detectar el inicio de la sección de memoria total
+                if re.match(r"^\s*\*\-memory", line, re.IGNORECASE):
+                    leyendo_memoria = True
+                    continue
+
+                # Capturar el tamaño total de RAM
+                if leyendo_memoria and not datos_ram["tamaño_total"]:
+                    match_total = re.search(patron_tamano_total, line)
+                    if match_total:
+                        datos_ram["tamaño_total"] = match_total.group(1)
+                        continue
+
+                # Detectar el inicio de un módulo de RAM
+                if re.match(r"^\s*\*\-bank:\d+", line, re.IGNORECASE):
+                    leyendo_modulo = True
+                    if modulo_actual:  # Guardar el módulo anterior si ya hay datos
+                        datos_ram["modulos"].append(modulo_actual)
+                    modulo_actual = {}  # Reiniciar el módulo actual
+                    continue
+
+                # Capturar datos del módulo RAM
+                if leyendo_modulo:
+                    for clave, patron in patrones_modulo.items():
+                        match = re.search(patron, line)
+                        if match and clave not in modulo_actual:
+                            modulo_actual[clave] = match.group(1).strip()
+                            break  # Evita procesar más claves en la misma línea
+
+        # Guardar el último módulo detectado
+        if modulo_actual:
+            datos_ram["modulos"].append(modulo_actual)
+
+        return datos_ram if datos_ram["tamaño_total"] or datos_ram["modulos"] else {"Error": "No se encontraron datos relevantes."}
+
+    except FileNotFoundError:
+        return {"Error": "Archivo no encontrado."}
+    except Exception as e:
+        return {"Error": f"Error inesperado: {e}"}
+
+
     
 def leer_datos_csv(archivo):
     registros = []
@@ -224,6 +333,19 @@ def info_bios(contraseña_usuario):
     except Exception as e:
         return f"Error: {e}"
     
+def info_lshw(contraseña_usuario, tipo):
+    try:
+        comando = f'echo {contraseña_usuario} | sudo lshw -C {tipo}> datos_lshw.txt'
+        resultado = subprocess.run(comando, shell=True, capture_output=True, text=True)
+        
+        if resultado.returncode == 0:
+            with open('datos_lshw.txt', 'r', encoding='utf-8') as file:
+                return file.write(resultado.stdout)
+        else:
+            return "Error al obtener la información."
+    except Exception as e:
+        return f"Error: {e}"
+    
 
 def respuestas_chat(entrada_usuario):
     entrada_usuario = entrada_usuario.lower()
@@ -239,7 +361,9 @@ def respuestas_chat(entrada_usuario):
         "promedio_temperaturas": r"\b(promedio de temperaturas)\b",
         "graficar_temperaturas": r"\b(graficar temperaturas|grafica)\b",
         "info_bios": r"\b(info bios|dame informacion de la bios|bios)\b",
-        "base_board": r"\b(base board|placa base|informacion placa base|información placa base)\b"
+        "base_board": r"\b(base board|placa base|informacion placa base|información placa base|placa madre)\b",
+        "cpu_info": r"\b(cpu info|informacion cpu|información cpu|cpu)\b",
+        "memoria_info": r"\b(informacion de memoria|ram|memoria ram)\b"
     }
 
     if re.search(entradas["saludos"], entrada_usuario):
@@ -275,6 +399,14 @@ def respuestas_chat(entrada_usuario):
         contrasela_usuario = input("Introduce tu contraseña de usuario: ")
         info_bios(contrasela_usuario)
         return f"Aqui tienes alguna informacion importante de tu placa base {bus_en_txt_base_board('datos_bios.txt')}"
+    elif re.search(entradas["cpu_info"], entrada_usuario):
+        contrasela_usuario = input("Introduce tu contraseña de usuario: ")
+        info_lshw(contrasela_usuario, "cpu")
+        return f"Aqui tienes alguna informacion importante de tu cpu {bus_en_txt_lshw_cpu('datos_lshw.txt')}"
+    elif re.search(entradas["memoria_info"], entrada_usuario):
+        contrasela_usuario = input("Introduce tu contraseña de usuario: ")
+        info_lshw(contrasela_usuario, "memory")
+        return f"Aqui tienes alguna informacion importante de tu memoria {bus_en_txt_lshw_ram('datos_lshw.txt')}"
     else:
         return random.choice(["No entiendo tu mensaje, ¿puedes reformularlo?", "Interesante, pero no sé cómo responder a eso."])
 
@@ -289,6 +421,10 @@ def main():
         
     if not os.path.exists("datos_bios.txt"):
         with open("datos_bios.txt", 'w', encoding='utf-8') as file:
+            pass
+        
+    if not os.path.exists("datos_lshw.txt"):
+        with open("datos_lshw.txt", 'w', encoding='utf-8') as file:
             pass
     
     while True:
