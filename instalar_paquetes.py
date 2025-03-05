@@ -57,7 +57,7 @@ def comprobar_e_instalar_paquetes():
         instalar_paquete_sistema(paquete)
 
 def mostrar_bibliotecas():
-    archivo = 'requirements.txt'
+    archivo = './datos/requirements.txt'
     ventana_historial = tk.Tk()  # Crea una ventana secundaria
     ventana_historial.title("Historial del Chat")
     ventana_historial.geometry("800x600")  # Establece un tamaño mayor
@@ -81,32 +81,32 @@ def comprobar_Archivos():
     if not os.path.exists("datos"):
         os.makedirs("datos")
     
-    if not os.path.exists("temp.txt"):
-        with open("temp.txt", 'w', encoding='utf-8') as file:
+    if not os.path.exists("./datos/temp.txt"):
+        with open("./datos/temp.txt", 'w', encoding='utf-8') as file:
             pass
 
-    if not os.path.exists("datos_temperaturas.csv"):
-        with open("datos_temperaturas.csv", 'w', encoding='utf-8') as file:
+    if not os.path.exists("./datos/datos_temperaturas.csv"):
+        with open("./datos/datos_temperaturas.csv", 'w', encoding='utf-8') as file:
             pass
         
-    if not os.path.exists("datos_bios.txt"):
-        with open("datos_bios.txt", 'w', encoding='utf-8') as file:
+    if not os.path.exists("./datos/datos_bios.txt"):
+        with open("./datos/datos_bios.txt", 'w', encoding='utf-8') as file:
             pass
         
-    if not os.path.exists("datos_lshw.txt"):
-        with open("datos_lshw.txt", 'w', encoding='utf-8') as file:
+    if not os.path.exists("./datos/datos_lshw.txt"):
+        with open("./datos/datos_lshw.txt", 'w', encoding='utf-8') as file:
             pass
         
-    if not os.path.exists("datos_OS.txt"):
-        with open("datos_OS.txt", 'w', encoding='utf-8') as file:
+    if not os.path.exists("./datos/datos_OS.txt"):
+        with open("./datos/datos_OS.txt", 'w', encoding='utf-8') as file:
             pass
         
-    if not os.path.exists("historial_Chat.txt"):
-        with open("historial_Chat.txt", 'w', encoding='utf-8') as file:
+    if not os.path.exists("./datos/historial_Chat.txt"):
+        with open("./datos/historial_Chat.txt", 'w', encoding='utf-8') as file:
             pass
         
-    if not os.path.exists("requirements.txt"):
-        with open("requirements.txt", 'w', encoding='utf-8') as file:
+    if not os.path.exists("./datos/requirements.txt"):
+        with open("./datos/requirements.txt", 'w', encoding='utf-8') as file:
             file.write("Las bibliotecas necesarias son: \ncsv\ntime\nshutil\nos\nre\nrandom\nsubprocess\n" \
                 "matplotlib\nrequests\nsys\ntkinter\nPueden ser inctaladas con:\n   pip install -r nombre_biblioteca\n" \
                 "o con:\n   sudo apt-get install python3-nombre_biblioteca")

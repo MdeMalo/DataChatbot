@@ -5,7 +5,7 @@ import respuestas_chat as rc
 def main():    
     ip.comprobar_e_instalar_paquetes()
     ip.comprobar_Archivos()
-    historial = 'historial_Chat.txt'
+    historial = './datos/historial_Chat.txt'
     bienvenida = "¡Hola! Soy Data. Puedo ayudarte con algunas tareas."
     
     with open(historial, "a", encoding="utf-8") as file:
@@ -19,10 +19,10 @@ def main():
         if user_text.lower() in ["adiós", "bye", "hasta luego", "nos vemos", "cerrar", "salir", "exit", "quit", "adios"]:
             print("Data: Adiós, Capitán. Espero que nuestra próxima interacción sea igualmente productiva.")
             with open(historial, "a", encoding="utf-8") as file:
-                file.write("Data: Adiós, Capitán. Espero que nuestra próxima interacción sea igualmente productiva.\n")  # Guarda el mensaje de despedida
+                file.write("Data: Adiós, Capitán. Espero que nuestra próxima interacción sea igualmente productiva.\n")
             break
         
-        respuesta = rc.respuestas_chat(user_text)  # Se guarda la respuesta en una variable
+        respuesta = rc.respuestas_chat(user_text) 
         print("Data:", respuesta)
 
         with open(historial, "a", encoding="utf-8") as file:

@@ -16,8 +16,8 @@ def bus_en_txt(nombre, word):
 def bus_en_txt_info_OS(archivo):
     datos_OS = {}
     try:
-        subprocess.run("lsb_release -a > datos_OS.txt", shell=True)
-        with open('datos_OS.txt', 'r', encoding='utf-8') as file:
+        subprocess.run("lsb_release -a > ./datos/datos_OS.txt", shell=True)
+        with open('./datos/datos_OS.txt', 'r', encoding='utf-8') as file:
             for line in file:
                 if "Distributor ID" in line:
                     datos_OS["Distribuidor"] = line.split(":")[1].strip()
