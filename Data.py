@@ -32,7 +32,3 @@ def main():
     with open(historial, "a", encoding="utf-8") as file:
         file.write(f"Fin del historial.\n")
         file.write("-----------------------------------------------------\n")
-
-
-if __name__ == "__main__":
-    main()
