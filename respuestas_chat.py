@@ -27,7 +27,8 @@ def respuestas_chat(entrada_usuario):
         "sistema_operativo": r"\b(sistema operativo|qué sistema operativo tengo|so|os|sistema de operación|nombre del sistema operativo|OS info)\b",
         "historial": r"\b(historial|mostrar historial|ver historial|mostrar registros|lista de interacciones)\b",
         "ayuda": r"\b(que puedes hacer|ayuda|asistencia|comandos disponibles|cómo me puedes ayudar)\b",
-        "Bibliotecas": r"\b(bibliotecas|paquetes|librerias|librerías|módulos|frameworks|dependencias)\b"
+        "Bibliotecas": r"\b(bibliotecas|paquetes|librerias|librerías|módulos|frameworks|dependencias)\b",
+        "Controladores": r"\b(controladores|drivers|drivers de hardware|drivers de dispositivo|drivers de sistema)\b"
     }
 
 
@@ -83,6 +84,10 @@ def respuestas_chat(entrada_usuario):
     elif re.search(entradas["Bibliotecas"], entrada_usuario):
         ip.mostrar_bibliotecas()  # CAMBIAR A FUTURO
         return "Bibliotecas necesarias abiertas en ventana emergente."
+    elif re.search(entradas["Controladores"], entrada_usuario):
+        fb.info_drivers()
+        fb.mostrar_drivers()
+        return "Controladores abiertos en ventana emergente."
     elif re.search(entradas["ayuda"], entrada_usuario):
         return "Puedo ayudarte con las siguientes tareas:\n" \
                "- Saludos y despedidas\n" \

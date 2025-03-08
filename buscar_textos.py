@@ -231,7 +231,11 @@ def bus_en_txt_lshw_ram(nombre):
                     for clave, patron in patrones_modulo.items():
                         match = re.search(patron, line)
                         if match and clave not in modulo_actual:
-                            modulo_actual[clave] = match.group(1).strip()
+                            if clave in ["fabricante", "ranura"]:
+                                modulo_actual[clave] = match.group(2).strip()
+                            else:
+                                modulo_actual[clave] = match.group(1).strip()
+                            break
                             break  # Evita procesar más claves en la misma línea
 
         # Guardar el último módulo detectado

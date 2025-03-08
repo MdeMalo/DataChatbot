@@ -1,4 +1,3 @@
-#!/usr/bin/python3
 import instalar_paquetes as ip
 import respuestas_chat as rc
 

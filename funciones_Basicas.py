@@ -90,6 +90,36 @@ def info_lshw(tipo):
             return "Error al obtener la información."
     except Exception as e:
         return f"Error: {e}"
+    
+def info_drivers():
+    try:
+        comando = 'sudo lspci -v > ./datos/datos_drivers.txt'
+        subprocess.run(comando, shell=True)
+        with open('./datos/datos_drivers.txt', 'r', encoding='utf-8') as file: 
+            return file.read()
+    except Exception as e:
+        return f"Error: {e}"
+    
+def mostrar_drivers():
+    archivo = './datos/datos_drivers.txt'
+    ventana_drivers = tk.Tk()  # Crea una ventana secundaria
+    ventana_drivers.title("Controladores del Sistema")
+    ventana_drivers.geometry("800x600")  # Establece un tamaño mayor
+    ventana_drivers.resizable(True, True)  # Permite redimensionar la ventana
+
+    texto_drivers = scrolledtext.ScrolledText(ventana_drivers, width=100, height=20, wrap=tk.WORD)
+    texto_drivers.pack(expand=True, fill='both')
+
+    try:
+        with open(archivo, 'r', encoding="utf-8") as file:
+            contenido = file.read()
+        if not contenido.strip():
+            contenido = "El archivo está vacío."
+        texto_drivers.insert(tk.INSERT, contenido)
+        texto_drivers.config(state=tk.DISABLED)
+    except FileNotFoundError:
+        texto_drivers.insert(tk.INSERT, "El archivo 'historial_Chat.txt' no se encontró.")
+        texto_drivers.config(state=tk.DISABLED)
 
 def info_OS():
     try:
