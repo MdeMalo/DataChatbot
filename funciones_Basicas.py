@@ -1,6 +1,7 @@
 import requests
 import subprocess
 import shutil
+import webbrowser
 import tkinter as tk
 from tkinter import scrolledtext
 
@@ -31,6 +32,15 @@ def obtener_clima(ciudad):
     #     print("Temperatura actual:", current_temperature, "°C")
     # else:
     #     print("Error en la solicitud:", response.status_code)
+    
+def buscar_youtube(busqueda):
+    url = f"https://www.youtube.com/results?search_query={busqueda.replace(' ', '+')}"
+    webbrowser.open(url)
+    
+def reproducir_en_spotify(cancion):
+    url = f"https://open.spotify.com/search/{cancion.replace(' ', '%20')}"
+    webbrowser.open(url)
+    return f"Buscando '{cancion}' en Spotify..."
     
 def mostrar_historial():
     archivo = './datos/historial_Chat.txt'

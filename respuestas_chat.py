@@ -28,7 +28,9 @@ def respuestas_chat(entrada_usuario):
         "historial": r"\b(historial|mostrar historial|ver historial|mostrar registros|lista de interacciones)\b",
         "ayuda": r"\b(que puedes hacer|ayuda|asistencia|comandos disponibles|cómo me puedes ayudar)\b",
         "Bibliotecas": r"\b(bibliotecas|paquetes|librerias|librerías|módulos|frameworks|dependencias)\b",
-        "Controladores": r"\b(controladores|drivers|drivers de hardware|drivers de dispositivo|drivers de sistema)\b"
+        "Controladores": r"\b(controladores|drivers|drivers de hardware|drivers de dispositivo|drivers de sistema)\b",
+        "youtube": r"\b(youtube|busca en youtube|yutu|busqueda de youtube)\b",
+        "spotify": r"\b(spotify|musica|pon musica|música|pon música)\b"
     }
 
 
@@ -88,6 +90,14 @@ def respuestas_chat(entrada_usuario):
         fb.info_drivers()
         fb.mostrar_drivers()
         return "Controladores abiertos en ventana emergente."
+    elif re.search(entradas["youtube"], entrada_usuario):
+        busqueda = input("¿Qué deseas buscar?\nTu:")
+        fb.buscar_youtube(busqueda)
+        return f"Buscando {busqueda} en navegdor"
+    elif re.search(entradas["spotify"], entrada_usuario):
+        busqueda = input("¿Qué deseas buscar?\nTu:")
+        fb.reproducir_en_spotify(busqueda)
+        return f"Buscando {busqueda} en spotify"
     elif re.search(entradas["ayuda"], entrada_usuario):
         return "Puedo ayudarte con las siguientes tareas:\n" \
                "- Saludos y despedidas\n" \
@@ -104,6 +114,7 @@ def respuestas_chat(entrada_usuario):
                "- Obtener información de la memoria RAM\n" \
                "- Obtener información del sistema operativo\n" \
                "- Mostrar el historial del chat\n" \
+               "- También puedo ayudarte a reproducir música en spotify y YouTube\n" \
                "- Mostrar las bibliotecas necesarias (si no estan instaladas se intalaran automaticamente)\n" \
                    "    Pero si no se instalan, puedes verlas escribiendo BIBLIOTECAS\n"
     else:
